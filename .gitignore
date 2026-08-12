@@ -1,0 +1,57 @@
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Native build products
+*.a
+*.d
+*.o
+*.so
+.build_os
+lib/
+config/buildconf.makefile
+config/buildconf.sh
+config/sniper.py
+mbuild/
+xed/
+xed_kit/
+python_kit/
+mcpat/mcpat-1.0*
+pin_kit/
+frontend/pin-frontend/obj-intel64/
+sift/recorder/obj-intel64/
+sift/siftdump
+hotspot/hotfloorplan
+hotspot/hotspot
+standalone/sniper
+reliability/reliability
+reliability/reliability_external
+
+# Downloaded benchmark sources and generated binaries
+benchmarks/parsec/parsec-2.1/
+benchmarks/powergrids/
+benchmarks/Temp
+benchmarks/*.log
+benchmarks/Periodic*
+benchmarks/Instantaneous*
+benchmarks/sim.cfg
+benchmarks/sim.info
+benchmarks/sim.out
+benchmarks/sim.scripts.py
+benchmarks/sim.stats.sqlite3
+benchmarks/energystats-temp.*
+
+# HotPROTON-generated data
+results/
+simulationcontrol/powergrids/
+simulationcontrol/*.log
+pggen/*.sp
+pggen/*.spice
+pggen/input/Periodic*.log
+floorplan_plot.png
+
+# Local editor and OS files
+.vscode/
+.idea/
+*~
+.DS_Store

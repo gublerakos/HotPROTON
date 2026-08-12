@@ -1,0 +1,166 @@
+FROM ubuntu:16.04
+# Add i386 support for support for Pin
+RUN dpkg --add-architecture i386
+RUN apt-get update && apt-get install -y \
+    python \
+    screen \
+    tmux \
+    binutils \
+    libc6:i386 \
+    libncurses5:i386 \
+    libstdc++6:i386 \
+ && rm -rf /var/lib/apt/lists/*
+# For building Sniper
+RUN apt-get update && apt-get install -y \
+    automake \
+    build-essential \
+    curl \
+    wget \
+    libboost-dev \
+    libsqlite3-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    g++-4.8 \
+    g++-4.9 \
+ && rm -rf /var/lib/apt/lists/*
+# For building RISC-V Tools
+RUN apt-get update && apt-get install -y \
+    nano \
+    autoconf \
+    automake \
+    autotools-dev \
+    bc \
+    bison \
+    curl \
+    device-tree-compiler \
+    flex \
+    gawk \
+    gperf \
+    libexpat-dev \
+    libgmp-dev \
+    libmpc-dev \
+    libmpfr-dev \
+    libtool \
+    libusb-1.0-0-dev \
+    patchutils \
+    pkg-config \
+    texinfo \
+    zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/*
+# Helper utilities
+RUN apt-get update && apt-get install -y \
+    gdb \
+    git \
+ && rm -rf /var/lib/apt/lists/*
+# Benchmark utilities
+RUN apt-get update && apt-get install -y \
+    gettext \
+    gfortran \
+    m4 \
+    xsltproc \
+    libx11-dev \
+    libxext-dev \
+    libxt-dev \
+    libxmu-dev \
+    libxi-dev \
+    gnuplot \
+ && rm -rf /var/lib/apt/lists/*
+ # Python3,pip3 and modules for simulationcontrol
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+ && rm -rf /var/lib/apt/lists/*
+RUN pip3 install --upgrade pip==20.*  # pip 21 is not compatible with Ubuntu 16.04 Python version
+RUN pip3 install matplotlib seaborn diskcache tabulate tqdm unidecode numpy
+
+
+# Install libheartbeats
+WORKDIR /build
+COPY ./heartbeats ./heartbeats
+WORKDIR /build/heartbeats
+COPY ./include/sim_api.h ./src
+RUN make
+RUN make install
+RUN ldconfig # Reload shared libraries (benchmark programs failed to find them for some reason)
+
+# Install libblas
+RUN apt-get update && \
+    apt-get install -y libblas-dev && \
+    rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
+RUN ldconfig # Reload shared libraries (benchmark programs failed to find them for some reason)
+
+# Install prerequisites
+RUN apt-get update && \
+    apt-get install -y wget gnupg2 software-properties-common
+
+# Add the Intel GPG key
+RUN wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor -o /usr/share/keyrings/oneapi-archive-keyring.gpg
+
+# Add Intel oneAPI repository
+RUN echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" > /etc/apt/sources.list.d/oneAPI.list
+
+# Update package list and install Intel oneAPI Base Toolkit
+RUN apt-get update && \
+    apt-get install -y intel-basekit
+
+# Set up environment variables
+RUN echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bashrc
+
+# Install dependencies for building Boost
+RUN apt-get update && \
+    apt-get install -y wget build-essential g++ python-dev autotools-dev libicu-dev libbz2-dev libboost-all-dev
+
+# Download Boost 1.74.0
+RUN wget https://archives.boost.io/release/1.74.0/source/boost_1_74_0.tar.gz -O /tmp/boost_1_74_0.tar.gz
+
+# Extract the Boost archive
+RUN cd /tmp && tar -xzf boost_1_74_0.tar.gz
+
+# Build and install Boost
+RUN cd /tmp/boost_1_74_0 && ./bootstrap.sh --with-libraries=filesystem && ./b2 install
+
+# Clean up
+RUN rm -rf /tmp/boost_1_74_0 /tmp/boost_1_74_0.tar.gz
+
+# Verify that libboost_filesystem.so.1.74.0 is installed
+RUN ldconfig && ls /usr/local/lib | grep libboost_filesystem
+
+# Set up environment variables if needed
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/boost.conf && ldconfig
+
+# Install prerequisites for building Eigen
+RUN apt-get update && \
+    apt-get install -y wget cmake build-essential
+
+# Download Eigen 3.4 source code
+RUN wget https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz -O /tmp/eigen-3.4.0.tar.gz
+
+# Extract the source code
+RUN cd /tmp && tar -xzf eigen-3.4.0.tar.gz
+
+# Build and install Eigen
+RUN cd /tmp/eigen-3.4.0 && mkdir build && cd build && \
+    cmake .. && make && make install
+
+# Clean up to reduce image size
+RUN rm -rf /tmp/eigen-3.4.0 /tmp/eigen-3.4.0.tar.gz
+
+# Set up library path if needed
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/eigen.conf && ldconfig
+
+# Install the necessary build tools and FFTW development package
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    libfftw3-dev
+
+# Install Python 2 pip manually
+RUN apt-get update && apt-get install -y python-pip wget
+RUN wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py
+RUN python /tmp/get-pip.py
+
+# Upgrade pip, setuptools, and wheel
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Install NumPy
+RUN python -m pip install numpy matplotlib seaborn diskcache tabulate tqdm unidecode futures

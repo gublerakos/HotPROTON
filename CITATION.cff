@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+title: "HotPROTON"
+message: "If you use HotPROTON, please cite the article below."
+type: software
+authors:
+  - family-names: Pantazi
+    given-names: Maria
+  - family-names: Axelou
+    given-names: Olympia
+  - family-names: Floros
+    given-names: George
+  - family-names: Shen
+    given-names: Yixian
+  - family-names: Polstra
+    given-names: Simon
+  - family-names: Stamoulis
+    given-names: George
+  - family-names: Pathania
+    given-names: Anuj
+preferred-citation:
+  type: article
+  title: "HotPROTON: A System-Level Framework for Thermal-Aware Electromigration Analysis in Manycore Systems"
+  authors:
+    - family-names: Pantazi
+      given-names: Maria
+    - family-names: Axelou
+      given-names: Olympia
+    - family-names: Floros
+      given-names: George
+    - family-names: Shen
+      given-names: Yixian
+    - family-names: Polstra
+      given-names: Simon
+    - family-names: Stamoulis
+      given-names: George
+    - family-names: Pathania
+      given-names: Anuj
+  journal: "ACM Transactions on Architecture and Code Optimization"
+  year: 2026

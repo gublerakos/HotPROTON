@@ -1,0 +1,7 @@
+diskcache
+matplotlib
+numpy
+seaborn
+tabulate
+tqdm
+Unidecode

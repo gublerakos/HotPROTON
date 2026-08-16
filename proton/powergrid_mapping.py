@@ -180,7 +180,7 @@ def process_discretization(subcore_folder, floorplan_width, floorplan_height, da
                 with io.open(subcore_output_file, 'a', encoding='utf-8') as output_file:  # Append mode
                     for idx in covered_indices:
                         if 0 <= idx < len(discretization_values):  # Ensure index is within bounds
-                            output_file.write(repr(discretization_values[idx]) + "\n")
+                            output_file.write(u"{}\n".format(repr(discretization_values[idx])))
                             
                 # Read the file and find the max value
                 with io.open(subcore_output_file, 'r', encoding='utf-8') as input_file:
@@ -191,7 +191,7 @@ def process_discretization(subcore_folder, floorplan_width, floorplan_height, da
                 # Overwrite file with only the max value
                 if max_value is not None:
                     with io.open(subcore_output_file, 'w', encoding='utf-8') as output_file:
-                        output_file.write(repr(max_value) + "\n")
+                        output_file.write(u"{}\n".format(repr(max_value)))
                 
 def process_files(design_name, metal):
     project_name = "stress_" + os.path.splitext(os.path.basename(design_name))[0]

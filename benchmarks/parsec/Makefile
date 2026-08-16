@@ -23,7 +23,7 @@ PARSEC_OVERLAY_FILES=$(shell find $(PARSEC_OVERLAY_DIR) -type f)
 HOOKS_DIR=$(BENCHMARKS_ROOT)/tools/hooks
 
 .PHONY: all parsec-core parsec-input-sim parsec-input-native \
-	parsec-dependencies parsec-build clean
+	parsec-hooks parsec-dependencies parsec-build clean
 
 all: parsec-build
 
@@ -64,11 +64,13 @@ parsec-input-native: $(PARSEC_DIR)/pkgs/apps/blackscholes/inputs/input_native.ta
 $(PARSEC_DIR)/pkgs/apps/blackscholes/inputs/input_native.tar:
 	echo "native inputs are not available"; false
 
-parsec-dependencies:
+parsec-hooks:
+	$(MAKE) -C $(HOOKS_DIR)
+
+parsec-dependencies: parsec-hooks
 	./checkdependencies.py
 
 parsec-build: parsec-dependencies parsec-core parsec-input-sim
-	$(MAKE) -C $(HOOKS_DIR)
 	cd $(PARSEC_DIR); ./bin/parsecmgmt -a build -p bench -c gcc-sniper
 	cd $(PARSEC_DIR); ./bin/parsecmgmt -a clean -c gcc-sniper
 

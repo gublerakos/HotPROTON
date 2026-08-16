@@ -34,16 +34,21 @@ logger.debug("PROTON path: %s", PROTON_PATH)
 
 failed_subcores = set()
 
+try:
+    text_type = unicode
+except NameError:
+    text_type = str
+
 # Custom class to write to both terminal and buffer
 class Tee:
     def __init__(self, *streams):
         self.streams = streams
 
     def write(self, data):
-        if isinstance(data, bytes):
+        if isinstance(data, bytes) and not isinstance(data, text_type):
             data = data.decode('utf-8')
-        elif not isinstance(data, str):
-            data = str(data)
+        elif not isinstance(data, text_type):
+            data = text_type(data)
         for stream in self.streams:
             stream.write(data)
         for stream in self.streams:

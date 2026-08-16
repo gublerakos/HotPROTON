@@ -98,7 +98,7 @@ class Spice_Parser_Class(object):  # Explicitly inherit from `object` for compat
     except ValueError as e:
       # return(1, "Corrupted DC analysis currents file.")
       return("Corrupted DC analysis currents file.")
-    except FileNotFoundError as e:
+    except (IOError, OSError) as e:
       # return(1, "DC analysis currents file not found.") 
       return("DC analysis currents file {} not found.".format(DC_analysis_filename))
     except Exception as e:
@@ -299,7 +299,7 @@ class Spice_Parser_Class(object):  # Explicitly inherit from `object` for compat
     except ValueError as e:
       # return(1, "Corrupted Spice file.")
       return("Corrupted Spice file.")
-    except FileNotFoundError as e:
+    except (IOError, OSError) as e:
       # return(1, "Spice file not found.") 
       return("Spice file not found.")
     except Exception as e:

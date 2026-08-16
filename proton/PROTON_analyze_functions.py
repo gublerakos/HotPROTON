@@ -168,9 +168,10 @@ def parse_powergrid(response=None):
 
 		if not os.path.exists(project_location_entry):
 			try:
-				os.mkdir(project_location_entry)
-			except PermissionError as e:
-				print("The project cannot be created at {} due to permission errors.".format(project_location_entry))
+				os.makedirs(project_location_entry)
+			except OSError as e:
+				if e.errno != 17:  # Error code for FileExistsError
+					raise
 
 		directory = os.path.join(project_location_entry, project_name_entry)
 		try:

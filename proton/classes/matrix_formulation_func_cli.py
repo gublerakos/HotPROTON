@@ -164,7 +164,7 @@ class Matrix_Formulation_Class(object):  # Explicitly inherit from `object` for 
     except ValueError as e:
       print("Corrupted CSV segments file.")
       return("Corrupted CSV segments file.")
-    except FileNotFoundError as e:
+    except (IOError, OSError) as e:
       print("CSV file not found.") 
       return("CSV file not found.") 
     except Exception as e:
@@ -289,12 +289,15 @@ class Matrix_Formulation_Class(object):  # Explicitly inherit from `object` for 
       with open(filename,"w")as f_analytical:
         f_analytical.write("nx_total = %s\nAcoef = %s\n" % (nx_total, acoef))
         f_analytical.close()
-    except PermissionError as e:
-      print("File {} could not be opened. Check if it is opened by another application.".format(filename))
-      return("File {} could not be opened. Check if it is opened by another application.".format(filename))
-    except FileNotFoundError as e:
-      print("File {} was not found in the system. Try performing discretization again.".format(filename))
-      return("File {} was not found in the system. Try performing discretization again.".format(filename))
+    except (IOError, OSError) as e:
+      if e.errno == 13:
+        message = "File {} could not be opened. Check its permissions.".format(filename)
+      elif e.errno == 2:
+        message = "File {} was not found in the system. Try performing discretization again.".format(filename)
+      else:
+        message = "An error occurred while writing file {}: {}.".format(filename, e)
+      print(message)
+      return(message)
     except Exception as e:
       print("An error occurred while writing file {}.".format(filename))
       return("An error occurred while writing file {}.".format(filename))

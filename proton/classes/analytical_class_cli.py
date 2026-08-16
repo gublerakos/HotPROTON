@@ -44,7 +44,7 @@ class Analytical_Class(object):
           if'Acoef'in words: Acoef=words[2]
           if'nx_total'in words: nxTotal = words[2]
         f_anal.close()
-    except FileNotFoundError as e:
+    except (IOError, OSError) as e:
       return "No discretization has been performed for line %s with params: %s, %s, %s." % (self.selected_line, self.TECHNOLOGY, self.TEMPERATURE, self.WIDTH)
 
 
@@ -72,7 +72,9 @@ class Analytical_Class(object):
     logger.debug("Running analytical executable %s with %s", exec_path, config_file)
     return_value = subprocess.call([
       "bash", "-lc",
-      '. /opt/intel/oneapi/mkl/latest/env/vars.sh && exec "$1" "$2"',
+      'export HOTPROTON_ANALYTICAL="$1" HOTPROTON_CONFIG="$2"; '
+      '. /opt/intel/oneapi/mkl/latest/env/vars.sh && '
+      'exec "$HOTPROTON_ANALYTICAL" "$HOTPROTON_CONFIG"',
       "hotproton-analytical", exec_path, config_file,
     ])
     elapsed_time = time.time() - start_time
